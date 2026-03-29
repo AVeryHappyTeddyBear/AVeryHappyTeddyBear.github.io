@@ -115,13 +115,13 @@ function displayDeathsTable(deaths) {
     if (deaths.length === 0) {
         const row = table.insertRow();
         const cell = row.insertCell(0);
-        cell.colSpan = 7;
+        cell.colSpan = 8;
         cell.textContent = 'No valid deaths found (excluding warmup and team kills)';
         return;
     }
     
     // Create header
-    const headers = ['Tick', 'Victim', 'Attacker', 'Weapon', 'Distance (units)', 'Accuracy Penalty', 'Spread (cm)'];
+    const headers = ['Tick', 'Victim', 'Attacker', 'Weapon', 'Hitgroup', 'Distance (units)', 'Accuracy Penalty', 'Spread (cm)'];
     const headerRow = table.insertRow(0);
     headers.forEach((header, idx) => {
         const th = document.createElement('th');
@@ -136,9 +136,10 @@ function displayDeathsTable(deaths) {
         row.insertCell(1).textContent = death.victim_name;
         row.insertCell(2).textContent = death.attacker_name;
         row.insertCell(3).textContent = death.weapon;
-        row.insertCell(4).textContent = death.distance.toFixed(1);
-        row.insertCell(5).textContent = death.accuracy_penalty.toFixed(3);
-        const spreadCell = row.insertCell(6);
+        row.insertCell(4).textContent = death.hitgroup;
+        row.insertCell(5).textContent = death.distance.toFixed(1);
+        row.insertCell(6).textContent = death.accuracy_penalty.toFixed(3);
+        const spreadCell = row.insertCell(7);
         spreadCell.textContent = death.spread.toFixed(1);
         spreadCell.classList.add('spread-value');
     });
