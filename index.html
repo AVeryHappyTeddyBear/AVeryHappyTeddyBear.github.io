@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+
+<head>
+  <meta content="text/html;charset=utf-8" http-equiv="Content-Type" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" sizes="any" type="image/svg+xml" href="/images/favicon.svg">
+  <title>CS2 Demo Death Analysis</title>
+</head>
+
+<body>
+  <div id="wrapper">
+    <h1>CS2 Demo Death Analysis</h1>
+    <p class="subtitle">Analyze player deaths, spread, and unluckiness</p>
+
+    <div id="input-section">
+      <label for="file_picker">Choose a CS2 demo file (.dem):</label>
+      <input type="file" id="file_picker" name="file_picker" accept=".dem">
+      <div id="loading" class="hidden">
+        <div class="spinner"></div>
+        <p>Analyzing demo file...</p>
+      </div>
+    </div>
+
+    <div id="results" class="hidden">
+      <div class="tabs">
+        <button class="tab-button active" data-tab="all-deaths">All Deaths</button>
+        <button class="tab-button" data-tab="victim-stats">Victim Stats</button>
+        <button class="tab-button" data-tab="attacker-stats">Attacker Stats</button>
+        <button class="tab-button" data-tab="top-5">Top 5 Unluckiest</button>
+      </div>
+
+      <div id="all-deaths" class="tab-content active">
+        <h2>All Death Events</h2>
+        <div class="table-container">
+          <table id="deaths-table"></table>
+        </div>
+      </div>
+
+      <div id="victim-stats" class="tab-content">
+        <h2>Victim Unluckiness Rankings</h2>
+        <p class="subtitle">Average spread (cm) suffered by each player</p>
+        <div class="table-container">
+          <table id="victim-table"></table>
+        </div>
+      </div>
+
+      <div id="attacker-stats" class="tab-content">
+        <h2>Attacker Luck Rankings</h2>
+        <p class="subtitle">Average spread (cm) inflicted by each player</p>
+        <div class="table-container">
+          <table id="attacker-table"></table>
+        </div>
+      </div>
+
+      <div id="top-5" class="tab-content">
+        <h2>Top 5 Unluckiest Deaths</h2>
+        <p class="subtitle">Highest spread kills where the victim was unlucky</p>
+        <div class="table-container">
+          <table id="top5-table"></table>
+        </div>
+      </div>
+    </div>
+
+    <div id="error" class="hidden">
+      <p class="error-message"></p>
+    </div>
+  </div>
+
+  <!-- Here, we have to load the generated JS file directly in the document -->
+  <script src='./pkg/demoparser2.js'></script>
+  <!-- Note that there is NO `type="module"` in the script tag -->
+  <script src="./index.js"></script>
+
+</body>
+
+</html>
