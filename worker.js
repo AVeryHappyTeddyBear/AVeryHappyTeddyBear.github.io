@@ -54,6 +54,8 @@ onmessage = async function (e) {
         
         console.log("Tick data returned:", tickData ? tickData.length : 0);
         
+        console.log("Raw tick data: ", tickData);
+
         // Step 4: Build a map for quick lookup: tickData[tick][steamid] = player_data
         const tickMap = {};
         const tickDataArray = Array.isArray(tickData) ? tickData : Array.from(tickData || []);
@@ -90,6 +92,8 @@ function analyzeDeaths(deathArray, tickMap) {
     const attackerStats = {};
     
     console.log("Processing", deathArray.length, "deaths");
+
+    console.log("Raw Death Array:", deathArray);
     
     // Process each death event one at a time
     let skipped = 0;
@@ -107,8 +111,8 @@ function analyzeDeaths(deathArray, tickMap) {
         const weapon = death.weapon || "Unknown";
         const hitgroup = death.hitgroup || "Unknown";
         
-        // Skip if missing attacker/victim or if same person
-        if (!attacker_steamid || !victim_steamid || attacker_steamid === victim_steamid) {
+        // Skip if victim and attacker are the same person
+        if (attacker_steamid === victim_steamid) {
             skipped++;
             skippedDeaths.push(death);
             continue;
