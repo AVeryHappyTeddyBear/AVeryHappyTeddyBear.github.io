@@ -152,7 +152,7 @@ function analyzeDeaths(deathArray, tickMap) {
         
         // Calculate spread = accuracy_penalty * distance * 0.19685
         const accuracy_penalty = attackerData.accuracy_penalty || 0;
-        const spread = accuracy_penalty * distance * 0.19685;
+        const spread = accuracy_penalty * distance * 1.9685 * 2;
         
         const attacker_name = attackerData.name || "Unknown";
         const victim_name = victimData.name || "Unknown";
