@@ -6,11 +6,7 @@ declare namespace wasm_bindgen {
 	export function listGameEvents(fileBytes: Uint8Array): any;
 	export function listUpdatedFields(fileBytes: Uint8Array): any;
 	export function parseTicks(file: Uint8Array, wanted_props?: any[] | null, wanted_ticks?: Int32Array | null, wanted_players?: any[] | null, struct_of_arrays?: boolean | null): any;
-	/**
-	 * extra: lets you add new fields to grenades. Use list_updated_fields for a full list.
-	 * grenades: lets you disable non-projectile grenades. This can have a big difference on memory/speed.
-	 */
-	export function parseGrenades(file: Uint8Array, extra?: any[] | null, grenades?: boolean | null): any;
+	export function parseGrenades(file: Uint8Array): any;
 	export function parseHeader(file: Uint8Array): any;
 	
 }
@@ -24,7 +20,7 @@ declare interface InitOutput {
   readonly listGameEvents: (a: number, b: number) => [number, number, number];
   readonly listUpdatedFields: (a: number, b: number) => [number, number, number];
   readonly parseTicks: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number) => [number, number, number];
-  readonly parseGrenades: (a: number, b: number, c: number, d: number, e: number) => [number, number, number];
+  readonly parseGrenades: (a: number, b: number) => [number, number, number];
   readonly parseHeader: (a: number, b: number) => [number, number, number];
   readonly __wbindgen_malloc: (a: number, b: number) => number;
   readonly __wbindgen_realloc: (a: number, b: number, c: number, d: number) => number;

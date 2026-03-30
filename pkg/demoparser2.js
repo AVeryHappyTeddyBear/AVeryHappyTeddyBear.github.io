@@ -245,19 +245,13 @@ let wasm_bindgen;
     };
 
     /**
-     * extra: lets you add new fields to grenades. Use list_updated_fields for a full list.
-     * grenades: lets you disable non-projectile grenades. This can have a big difference on memory/speed.
      * @param {Uint8Array} file
-     * @param {any[] | null} [extra]
-     * @param {boolean | null} [grenades]
      * @returns {any}
      */
-    __exports.parseGrenades = function(file, extra, grenades) {
+    __exports.parseGrenades = function(file) {
         const ptr0 = passArray8ToWasm0(file, wasm.__wbindgen_malloc);
         const len0 = WASM_VECTOR_LEN;
-        var ptr1 = isLikeNone(extra) ? 0 : passArrayJsValueToWasm0(extra, wasm.__wbindgen_malloc);
-        var len1 = WASM_VECTOR_LEN;
-        const ret = wasm.parseGrenades(ptr0, len0, ptr1, len1, isLikeNone(grenades) ? 0xFFFFFF : grenades ? 1 : 0);
+        const ret = wasm.parseGrenades(ptr0, len0);
         if (ret[2]) {
             throw takeFromExternrefTable0(ret[1]);
         }

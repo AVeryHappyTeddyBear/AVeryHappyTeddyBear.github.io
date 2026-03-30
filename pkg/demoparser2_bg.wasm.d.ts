@@ -6,7 +6,7 @@ export const parseEvents: (a: number, b: number, c: number, d: number, e: number
 export const listGameEvents: (a: number, b: number) => [number, number, number];
 export const listUpdatedFields: (a: number, b: number) => [number, number, number];
 export const parseTicks: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number) => [number, number, number];
-export const parseGrenades: (a: number, b: number, c: number, d: number, e: number) => [number, number, number];
+export const parseGrenades: (a: number, b: number) => [number, number, number];
 export const parseHeader: (a: number, b: number) => [number, number, number];
 export const __wbindgen_malloc: (a: number, b: number) => number;
 export const __wbindgen_realloc: (a: number, b: number, c: number, d: number) => number;
