@@ -115,17 +115,31 @@ function displayDeathsTable(deaths) {
     if (deaths.length === 0) {
         const row = table.insertRow();
         const cell = row.insertCell(0);
-        cell.colSpan = 8;
+        cell.colSpan = 9;
         cell.textContent = 'No valid deaths found (excluding warmup and team kills)';
         return;
     }
     
     // Create header
-    const headers = ['Tick', 'Victim', 'Attacker', 'Weapon', 'Hitgroup', 'Distance (units)', 'Accuracy Penalty', 'Spread (cm)'];
+    const headers = [
+        { text: 'Tick', title: null },
+        { text: 'Victim', title: null },
+        { text: 'Attacker', title: null },
+        { text: 'Weapon', title: null },
+        { text: 'Hitgroup', title: null },
+        { text: 'Distance (units)', title: null },
+        { text: 'Accuracy Penalty', title: 'The weapon accuracy penalty value from the game at the time of the shot' },
+        { text: 'Spread (cm)', title: 'The calculated bullet spread diameter in centimeters (accuracy_penalty × distance × constants)' },
+        { text: 'Hit Probability (%)', title: 'Approximate % chance the spread would hit this body part. Calculated as (body_part_area / total_spread_area) × 100. Uses estimated body part areas from CS2 player models.' }
+    ];
     const headerRow = table.insertRow(0);
     headers.forEach((header, idx) => {
         const th = document.createElement('th');
-        th.textContent = header;
+        th.textContent = header.text;
+        if (header.title) {
+            th.title = header.title;
+            th.style.cursor = 'help';
+        }
         headerRow.appendChild(th);
     });
     
@@ -142,6 +156,9 @@ function displayDeathsTable(deaths) {
         const spreadCell = row.insertCell(7);
         spreadCell.textContent = death.spread.toFixed(1);
         spreadCell.classList.add('spread-value');
+        const probabilityCell = row.insertCell(8);
+        probabilityCell.textContent = death.hitProbability.toFixed(1);
+        probabilityCell.classList.add('probability-value');
     });
 }
 
@@ -159,9 +176,18 @@ function displayVictimStats(victims) {
     
     // Create header
     const headerRow = table.insertRow(0);
-    ['Player', 'Avg Spread (cm)', 'Deaths'].forEach(header => {
+    const victimHeaders = [
+        { text: 'Player', title: null },
+        { text: 'Avg Hit Probability (%)', title: 'Average hit probability across all deaths. Lower = unluckier (harder shots to land)' },
+        { text: 'Deaths', title: null }
+    ];
+    victimHeaders.forEach(header => {
         const th = document.createElement('th');
-        th.textContent = header;
+        th.textContent = header.text;
+        if (header.title) {
+            th.title = header.title;
+            th.style.cursor = 'help';
+        }
         headerRow.appendChild(th);
     });
     
@@ -169,9 +195,9 @@ function displayVictimStats(victims) {
     victims.forEach((victim, idx) => {
         const row = table.insertRow();
         row.insertCell(0).textContent = victim.player;
-        const spreadCell = row.insertCell(1);
-        spreadCell.textContent = victim.avgSpread.toFixed(1);
-        spreadCell.classList.add('spread-value');
+        const probabilityCell = row.insertCell(1);
+        probabilityCell.textContent = victim.avgHitProbability.toFixed(1);
+        probabilityCell.classList.add('probability-value');
         row.insertCell(2).textContent = victim.deaths;
         
         // Alternate row colors
@@ -195,9 +221,18 @@ function displayAttackerStats(attackers) {
     
     // Create header
     const headerRow = table.insertRow(0);
-    ['Player', 'Avg Spread (cm)', 'Kills'].forEach(header => {
+    const attackerHeaders = [
+        { text: 'Player', title: null },
+        { text: 'Avg Hit Probability (%)', title: 'Average hit probability across all kills. Lower = less lucky (harder shots landed) (unluckier results despite the skill)' },
+        { text: 'Kills', title: null }
+    ];
+    attackerHeaders.forEach(header => {
         const th = document.createElement('th');
-        th.textContent = header;
+        th.textContent = header.text;
+        if (header.title) {
+            th.title = header.title;
+            th.style.cursor = 'help';
+        }
         headerRow.appendChild(th);
     });
     
@@ -205,9 +240,9 @@ function displayAttackerStats(attackers) {
     attackers.forEach((attacker, idx) => {
         const row = table.insertRow();
         row.insertCell(0).textContent = attacker.player;
-        const spreadCell = row.insertCell(1);
-        spreadCell.textContent = attacker.avgSpread.toFixed(1);
-        spreadCell.classList.add('spread-value');
+        const probabilityCell = row.insertCell(1);
+        probabilityCell.textContent = attacker.avgHitProbability.toFixed(1);
+        probabilityCell.classList.add('probability-value');
         row.insertCell(2).textContent = attacker.kills;
         
         // Alternate row colors
@@ -224,16 +259,32 @@ function displayTop5(top5) {
     if (top5.length === 0) {
         const row = table.insertRow();
         const cell = row.insertCell(0);
-        cell.colSpan = 9;
+        cell.colSpan = 10;
         cell.textContent = 'No death data available';
         return;
     }
     
     // Create header
     const headerRow = table.insertRow(0);
-    ['#', 'Tick', 'Victim', 'Attacker', 'Weapon', 'Hitgroup', 'Distance (units)', 'Accuracy Penalty', 'Spread (cm)'].forEach(header => {
+    const top5Headers = [
+        { text: '#', title: null },
+        { text: 'Tick', title: null },
+        { text: 'Victim', title: null },
+        { text: 'Attacker', title: null },
+        { text: 'Weapon', title: null },
+        { text: 'Hitgroup', title: null },
+        { text: 'Distance (units)', title: null },
+        { text: 'Accuracy Penalty', title: 'The weapon accuracy penalty value from the game at the time of the shot' },
+        { text: 'Spread (cm)', title: 'The calculated bullet spread diameter in centimeters (accuracy_penalty × distance × constants)' },
+        { text: 'Hit Probability (%)', title: 'Approximate % chance the spread would hit this body part. Calculated as (body_part_area / total_spread_area) × 100. Uses estimated body part areas from CS2 player models.' }
+    ];
+    top5Headers.forEach(header => {
         const th = document.createElement('th');
-        th.textContent = header;
+        th.textContent = header.text;
+        if (header.title) {
+            th.title = header.title;
+            th.style.cursor = 'help';
+        }
         headerRow.appendChild(th);
     });
     
@@ -251,6 +302,9 @@ function displayTop5(top5) {
         const spreadCell = row.insertCell(8);
         spreadCell.textContent = death.spread.toFixed(1);
         spreadCell.classList.add('top-spread-value');
+        const probabilityCell = row.insertCell(9);
+        probabilityCell.textContent = death.hitProbability.toFixed(1);
+        probabilityCell.classList.add('top-probability-value');
         
         row.classList.add('top5-row');
     });

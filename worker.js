@@ -85,6 +85,36 @@ onmessage = async function (e) {
     }
 };
 
+// Body part areas in square centimeters (approximate)
+const BODY_PART_AREAS = {
+    'head': 450,
+    'chest': 2200,
+    'stomach': 1200,
+    'left_arm': 900,
+    'right_arm': 900,
+    'left_leg': 1700,
+    'right_leg': 1700
+};
+
+// Calculate area of circle from diameter (spread)
+// Area = π * (diameter/2)² = π * diameter² / 4
+function calculateSpreadArea(spreadDiameter) {
+    return Math.PI * (spreadDiameter / 2) * (spreadDiameter / 2);
+}
+
+// Calculate hit probability as percentage
+// Probability = (body_part_area / spread_area) * 100
+function calculateHitProbability(hitgroup, spreadDiameter) {
+    const bodyPartArea = BODY_PART_AREAS[hitgroup];
+    if (!bodyPartArea) {
+        return null; // Invalid hitgroup
+    }
+    
+    const spreadArea = calculateSpreadArea(spreadDiameter);
+    const probability = (bodyPartArea / spreadArea) * 100;
+    return Math.round(probability * 10) / 10; // Round to 1 decimal place
+}
+
 function analyzeDeaths(deathArray, tickMap) {
     const allDeaths = [];
     const skippedDeaths = [];
@@ -154,6 +184,15 @@ function analyzeDeaths(deathArray, tickMap) {
         const accuracy_penalty = attackerData.accuracy_penalty || 0;
         const spread = accuracy_penalty * distance * 1.9685 * 2;
         
+        // Calculate hit probability based on hitgroup and spread area
+        const hitProbability = calculateHitProbability(hitgroup, spread);
+        
+        // Skip this death if hitgroup is not in the valid list
+        if (hitProbability === null) {
+            skippedDeaths.push(death);
+            continue;
+        }
+        
         const attacker_name = attackerData.name || "Unknown";
         const victim_name = victimData.name || "Unknown";
         
@@ -168,23 +207,24 @@ function analyzeDeaths(deathArray, tickMap) {
             hitgroup,
             distance: Math.round(distance * 10) / 10,
             accuracy_penalty: Math.round(accuracy_penalty * 1000) / 1000,
-            spread: Math.round(spread * 10) / 10
+            spread: Math.round(spread * 10) / 10,
+            hitProbability: hitProbability
         };
         
         allDeaths.push(deathRecord);
         
-        // Track victim stats
+        // Track victim stats (by hit probability)
         if (!victimStats[victim_name]) {
-            victimStats[victim_name] = { name: victim_name, spreadTotal: 0, deaths: 0 };
+            victimStats[victim_name] = { name: victim_name, probabilityTotal: 0, deaths: 0 };
         }
-        victimStats[victim_name].spreadTotal += spread;
+        victimStats[victim_name].probabilityTotal += hitProbability;
         victimStats[victim_name].deaths += 1;
         
-        // Track attacker stats
+        // Track attacker stats (by hit probability)
         if (!attackerStats[attacker_name]) {
-            attackerStats[attacker_name] = { name: attacker_name, spreadTotal: 0, kills: 0 };
+            attackerStats[attacker_name] = { name: attacker_name, probabilityTotal: 0, kills: 0 };
         }
-        attackerStats[attacker_name].spreadTotal += spread;
+        attackerStats[attacker_name].probabilityTotal += hitProbability;
         attackerStats[attacker_name].kills += 1;
     }
     
@@ -197,23 +237,23 @@ function analyzeDeaths(deathArray, tickMap) {
     const victimRanking = Object.values(victimStats)
         .map(v => ({
             player: v.name,
-            avgSpread: Math.round((v.spreadTotal / v.deaths) * 10) / 10,
+            avgHitProbability: Math.round((v.probabilityTotal / v.deaths) * 10) / 10,
             deaths: v.deaths
         }))
-        .sort((a, b) => b.avgSpread - a.avgSpread);
+        .sort((a, b) => a.avgHitProbability - b.avgHitProbability);
     
     // Calculate averages for attackers
     const attackerRanking = Object.values(attackerStats)
         .map(a => ({
             player: a.name,
-            avgSpread: Math.round((a.spreadTotal / a.kills) * 10) / 10,
+            avgHitProbability: Math.round((a.probabilityTotal / a.kills) * 10) / 10,
             kills: a.kills
         }))
-        .sort((a, b) => b.avgSpread - a.avgSpread);
+        .sort((a, b) => a.avgHitProbability - b.avgHitProbability);
     
-    // Get top 5 unluckiest deaths
+    // Get top 5 unluckiest deaths (sorted by hit probability, ascending - lowest probability = unluckiest)
     const top5Unlucky = allDeaths
-        .sort((a, b) => b.spread - a.spread)
+        .sort((a, b) => a.hitProbability - b.hitProbability)
         .slice(0, 5);
     
     return {
