@@ -6,6 +6,9 @@ async function run_wasm() {
     // Create a worker in JS. The worker also uses Rust functions
     var myWorker = new Worker('./worker.js');
     
+    // Store full deaths data for filtering
+    let allDeathsData = [];
+    
     // Set up file picker - accept only .dem files
     const filePicker = document.getElementById("file_picker");
     filePicker.addEventListener("change", function () {
@@ -40,9 +43,11 @@ async function run_wasm() {
                         return;
                     }
                     
-                    // Display results
+                    // Store deaths data and display results
+                    allDeathsData = e.data.allDeaths;
                     displayResults(e.data);
                     showResults(true);
+                    setupDeathTableFilters();
                 };
             } catch (err) {
                 showLoading(false);
@@ -66,6 +71,94 @@ async function run_wasm() {
             switchTab(tabName);
         });
     });
+    
+    // Setup death table filters
+    function setupDeathTableFilters() {
+        const victimFilter = document.getElementById('filter-victim');
+        const attackerFilter = document.getElementById('filter-attacker');
+        const weaponFilter = document.getElementById('filter-weapon');
+        const hitgroupFilter = document.getElementById('filter-hitgroup');
+        const clearBtn = document.getElementById('clear-filters');
+        
+        // Extract unique values from deaths data
+        function getUniqueValues(field) {
+            const values = new Set(allDeathsData.map(death => death[field]));
+            return Array.from(values).sort();
+        }
+        
+        // Populate dropdowns
+        function populateDropdowns() {
+            const victims = getUniqueValues('victim_name');
+            const attackers = getUniqueValues('attacker_name');
+            const weapons = getUniqueValues('weapon');
+            const hitgroups = getUniqueValues('hitgroup');
+            
+            // Clear and add "All" option
+            [victimFilter, attackerFilter, weaponFilter, hitgroupFilter].forEach(select => {
+                select.innerHTML = '<option value="">All</option>';
+            });
+            
+            // Add options
+            victims.forEach(v => {
+                const option = document.createElement('option');
+                option.value = v;
+                option.textContent = v;
+                victimFilter.appendChild(option);
+            });
+            
+            attackers.forEach(a => {
+                const option = document.createElement('option');
+                option.value = a;
+                option.textContent = a;
+                attackerFilter.appendChild(option);
+            });
+            
+            weapons.forEach(w => {
+                const option = document.createElement('option');
+                option.value = w;
+                option.textContent = w;
+                weaponFilter.appendChild(option);
+            });
+            
+            hitgroups.forEach(h => {
+                const option = document.createElement('option');
+                option.value = h;
+                option.textContent = h;
+                hitgroupFilter.appendChild(option);
+            });
+        }
+        
+        populateDropdowns();
+        
+        function applyFilters() {
+            const victim = victimFilter.value;
+            const attacker = attackerFilter.value;
+            const weapon = weaponFilter.value;
+            const hitgroup = hitgroupFilter.value;
+            
+            const filtered = allDeathsData.filter(death => {
+                return (!victim || death.victim_name === victim) &&
+                       (!attacker || death.attacker_name === attacker) &&
+                       (!weapon || death.weapon === weapon) &&
+                       (!hitgroup || death.hitgroup === hitgroup);
+            });
+            
+            displayDeathsTable(filtered);
+        }
+        
+        victimFilter.addEventListener('change', applyFilters);
+        attackerFilter.addEventListener('change', applyFilters);
+        weaponFilter.addEventListener('change', applyFilters);
+        hitgroupFilter.addEventListener('change', applyFilters);
+        
+        clearBtn.addEventListener('click', function() {
+            victimFilter.value = '';
+            attackerFilter.value = '';
+            weaponFilter.value = '';
+            hitgroupFilter.value = '';
+            displayDeathsTable(allDeathsData);
+        });
+    }
 }
 
 function switchTab(tabName) {

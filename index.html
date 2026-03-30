@@ -32,6 +32,25 @@
 
       <div id="all-deaths" class="tab-content active">
         <h2>All Death Events</h2>
+        <div id="deaths-filters" class="filters-container">
+          <div class="filter-group">
+            <label for="filter-victim">Victim:</label>
+            <select id="filter-victim"></select>
+          </div>
+          <div class="filter-group">
+            <label for="filter-attacker">Attacker:</label>
+            <select id="filter-attacker"></select>
+          </div>
+          <div class="filter-group">
+            <label for="filter-weapon">Weapon:</label>
+            <select id="filter-weapon"></select>
+          </div>
+          <div class="filter-group">
+            <label for="filter-hitgroup">Hitgroup:</label>
+            <select id="filter-hitgroup"></select>
+          </div>
+          <button id="clear-filters" class="clear-filters-btn">Clear Filters</button>
+        </div>
         <div class="table-container">
           <table id="deaths-table"></table>
         </div>
