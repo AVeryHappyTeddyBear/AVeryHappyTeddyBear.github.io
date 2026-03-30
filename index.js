@@ -223,7 +223,7 @@ function displayAttackerStats(attackers) {
     const headerRow = table.insertRow(0);
     const attackerHeaders = [
         { text: 'Player', title: null },
-        { text: 'Avg Hit Probability (%)', title: 'Average hit probability across all kills. Lower = less lucky (harder shots landed) (unluckier results despite the skill)' },
+        { text: 'Avg Hit Probability (%)', title: 'Average hit probability across all kills. Lower = more lucky' },
         { text: 'Kills', title: null }
     ];
     attackerHeaders.forEach(header => {
