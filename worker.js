@@ -104,6 +104,7 @@ function calculateSpreadArea(spreadDiameter) {
 
 // Calculate hit probability as percentage
 // Probability = (body_part_area / spread_area) * 100
+// Capped at 1000% to prevent insane averages from very small spreads
 function calculateHitProbability(hitgroup, spreadDiameter) {
     const bodyPartArea = BODY_PART_AREAS[hitgroup];
     if (!bodyPartArea) {
@@ -112,7 +113,8 @@ function calculateHitProbability(hitgroup, spreadDiameter) {
     
     const spreadArea = calculateSpreadArea(spreadDiameter);
     const probability = (bodyPartArea / spreadArea) * 100;
-    return Math.round(probability * 10) / 10; // Round to 1 decimal place
+    const capped = Math.min(probability, 1000); // Cap at 1000%
+    return Math.round(capped * 10) / 10; // Round to 1 decimal place
 }
 
 function analyzeDeaths(deathArray, tickMap) {
@@ -215,16 +217,18 @@ function analyzeDeaths(deathArray, tickMap) {
         
         // Track victim stats (by hit probability)
         if (!victimStats[victim_name]) {
-            victimStats[victim_name] = { name: victim_name, probabilityTotal: 0, deaths: 0 };
+            victimStats[victim_name] = { name: victim_name, probabilityTotal: 0, spreadTotal: 0, deaths: 0 };
         }
         victimStats[victim_name].probabilityTotal += hitProbability;
+        victimStats[victim_name].spreadTotal += spread;
         victimStats[victim_name].deaths += 1;
         
         // Track attacker stats (by hit probability)
         if (!attackerStats[attacker_name]) {
-            attackerStats[attacker_name] = { name: attacker_name, probabilityTotal: 0, kills: 0 };
+            attackerStats[attacker_name] = { name: attacker_name, probabilityTotal: 0, spreadTotal: 0, kills: 0 };
         }
         attackerStats[attacker_name].probabilityTotal += hitProbability;
+        attackerStats[attacker_name].spreadTotal += spread;
         attackerStats[attacker_name].kills += 1;
     }
     
@@ -238,22 +242,45 @@ function analyzeDeaths(deathArray, tickMap) {
         .map(v => ({
             player: v.name,
             avgHitProbability: Math.round((v.probabilityTotal / v.deaths) * 10) / 10,
+            avgSpread: Math.round((v.spreadTotal / v.deaths) * 10) / 10,
             deaths: v.deaths
         }))
-        .sort((a, b) => a.avgHitProbability - b.avgHitProbability);
+        .sort((a, b) => {
+            // Primary sort: hit probability (ascending)
+            if (a.avgHitProbability !== b.avgHitProbability) {
+                return a.avgHitProbability - b.avgHitProbability;
+            }
+            // Secondary sort: spread (descending - largest to smallest) for ties
+            return b.avgSpread - a.avgSpread;
+        });
     
     // Calculate averages for attackers
     const attackerRanking = Object.values(attackerStats)
         .map(a => ({
             player: a.name,
             avgHitProbability: Math.round((a.probabilityTotal / a.kills) * 10) / 10,
+            avgSpread: Math.round((a.spreadTotal / a.kills) * 10) / 10,
             kills: a.kills
         }))
-        .sort((a, b) => a.avgHitProbability - b.avgHitProbability);
+        .sort((a, b) => {
+            // Primary sort: hit probability (ascending)
+            if (a.avgHitProbability !== b.avgHitProbability) {
+                return a.avgHitProbability - b.avgHitProbability;
+            }
+            // Secondary sort: spread (descending - largest to smallest) for ties
+            return b.avgSpread - a.avgSpread;
+        });
     
     // Get top 5 unluckiest deaths (sorted by hit probability, ascending - lowest probability = unluckiest)
     const top5Unlucky = allDeaths
-        .sort((a, b) => a.hitProbability - b.hitProbability)
+        .sort((a, b) => {
+            // Primary sort: hit probability (ascending)
+            if (a.hitProbability !== b.hitProbability) {
+                return a.hitProbability - b.hitProbability;
+            }
+            // Secondary sort: spread (descending - largest to smallest) for ties
+            return b.spread - a.spread;
+        })
         .slice(0, 5);
     
     return {
