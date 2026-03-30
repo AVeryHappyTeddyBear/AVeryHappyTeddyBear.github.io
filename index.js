@@ -220,7 +220,7 @@ function displayDeathsTable(deaths) {
         { text: 'Attacker', title: null },
         { text: 'Weapon', title: null },
         { text: 'Hitgroup', title: null },
-        { text: 'Distance (units)', title: null },
+        { text: 'Distance (HU)', title: null },
         { text: 'Accuracy Penalty', title: 'The weapon accuracy penalty value from the game at the time of the shot' },
         { text: 'Spread (cm)', title: 'The calculated bullet spread diameter in centimeters (accuracy_penalty × distance × constants)' },
         { text: 'Hit Probability (%)', title: 'Approximate % chance the spread would hit this body part. Calculated as (body_part_area / total_spread_area) × 100. Uses estimated body part areas from CS2 player models.' }
@@ -366,7 +366,7 @@ function displayTop5(top5) {
         { text: 'Attacker', title: null },
         { text: 'Weapon', title: null },
         { text: 'Hitgroup', title: null },
-        { text: 'Distance (units)', title: null },
+        { text: 'Distance (HU)', title: null },
         { text: 'Accuracy Penalty', title: 'The weapon accuracy penalty value from the game at the time of the shot' },
         { text: 'Spread (cm)', title: 'The calculated bullet spread diameter in centimeters (accuracy_penalty × distance × constants)' },
         { text: 'Hit Probability (%)', title: 'Approximate % chance the spread would hit this body part. Calculated as (body_part_area / total_spread_area) × 100. Uses estimated body part areas from CS2 player models.' }
